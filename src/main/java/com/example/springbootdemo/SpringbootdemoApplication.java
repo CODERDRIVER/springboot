@@ -3,9 +3,12 @@ package com.example.springbootdemo;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.support.config.FastJsonConfig;
 import com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter;
+import com.example.springbootdemo.activeMQ.Msg;
 import com.example.springbootdemo.filter.JwtFilter;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.web.HttpMessageConverters;
@@ -16,6 +19,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
@@ -29,7 +33,10 @@ import java.util.List;
  */
 @SpringBootApplication
 @EnableTransactionManagement		//
-public class SpringbootdemoApplication extends WebMvcConfigurerAdapter{
+public class SpringbootdemoApplication extends WebMvcConfigurerAdapter implements CommandLineRunner{
+
+	@Autowired
+	private JmsTemplate jmsTemplate;
 
 	@Override
 	public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -65,5 +72,10 @@ public class SpringbootdemoApplication extends WebMvcConfigurerAdapter{
 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringbootdemoApplication.class, args);
+	}
+
+	@Override
+	public void run(String... args) throws Exception{
+		jmsTemplate.send("my-destination",new Msg());	//在消息代理上创建了一个目的地叫做My-destination
 	}
 }
